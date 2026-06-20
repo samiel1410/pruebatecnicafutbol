@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api-whatsapp",
+      "destination": "https://whatsappnotif.easysplus.com/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
