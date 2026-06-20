@@ -123,7 +123,7 @@ export default function FormPage() {
       formDataWa.append('number', numeroEnvio);
       formDataWa.append('message', mensajeTexto);
 
-      fetch('https://whatsappnotif.easysplus.com/', {
+      fetch('/api-whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formDataWa
