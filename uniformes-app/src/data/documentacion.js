@@ -46,20 +46,20 @@ Consulta a la Base de Datos (Mock):
 <thead><tr><th>Componente</th><th>Tecnología</th><th>Responsabilidad</th></tr></thead>
 <tbody>
 <tr><td><strong>Aplicación Web (SPA)</strong></td><td>React JS (Vite)</td><td>Gestión del estado complejo, renderizado dinámico, validaciones y UX fluida.</td></tr>
-<tr><td><strong>Backend Ligero (API)</strong></td><td>PHP puro</td><td>Habilitar comunicación CORS segura y proveer los endpoints GET y POST.</td></tr>
-<tr><td><strong>Base de Datos Dinámica</strong></td><td>JSON File</td><td>Persistir en tiempo real los registros guardados mediante el backend PHP, reemplazando los mocks estáticos.</td></tr>
-<tr><td><strong>Notificaciones</strong></td><td>API WhatsApp (Externa)</td><td>Enviar automáticamente vía POST los resúmenes de pedidos al número del representante o al club.</td></tr>
+<tr><td><strong>Base de Datos Dinámica</strong></td><td>Local Storage API</td><td>Persistir en tiempo real los registros guardados en el navegador para pruebas locales, evitando requerir un backend PHP.</td></tr>
+<tr><td><strong>Datos Base (Semilla)</strong></td><td>JSON File</td><td>Archivo estático inicial (<code>jugadores.json</code>) que carga los registros si el Local Storage está vacío.</td></tr>
+<tr><td><strong>Notificaciones</strong></td><td>API WhatsApp (Externa)</td><td>Enviar automáticamente vía POST los resúmenes de pedidos al número del representante o al club mediante <code>easysplus.com</code>.</td></tr>
 </tbody>
 </table>
 
 <h3>Diagrama de arquitectura</h3>
 <pre>
-NAVEGADOR (Cliente React)
+NAVEGADOR (Cliente React - 100% Frontend Serverless)
   FormPage (Validación y UX) &harr; useJugadores (Custom Hook Asíncrono)
-        &darr; (POST WhatsApp)             &darr; (Fetch API GET/POST)
-   easysplus.com (WhatsApp)        api.php (Backend Local)
-                                         &darr;
-                                 jugadores.json (Persistencia)
+        &darr; (POST WhatsApp)             &darr; (Guarda y Lee Data)
+   easysplus.com (WhatsApp)        Local Storage (Persistencia Local)
+                                         &uarr; (Carga inicial)
+                                 jugadores.json (Datos Base)
 </pre>
 <hr>
 
@@ -78,7 +78,7 @@ NAVEGADOR (Cliente React)
 <h3>Razones de la elección</h3>
 <ol>
 <li><strong>Experiencia de Usuario (UX)</strong>: React permite validaciones ultra rápidas, estados de carga elegantes y un diseño profesional que Forms no ofrece.</li>
-<li><strong>Arquitectura Escalable</strong>: El sistema ya no es estático; el formulario ahora lee y escribe de forma asíncrona mediante un API (<code>api.php</code>) a un archivo de persistencia real (<code>jugadores.json</code>).</li>
+<li><strong>Arquitectura Escalable Serverless</strong>: Al usar Local Storage, el prototipo es 100% estático y funciona en cualquier hosting gratuito (GitHub Pages, Vercel, Netlify) sin depender de configurar un backend con PHP u otra tecnología.</li>
 <li><strong>Automatización Inmediata</strong>: Se integró una llamada POST a una API externa de WhatsApp (<code>whatsappnotif.easysplus.com</code>) para notificación inmediata, cerrando el ciclo del proceso.</li>
 </ol>
 <hr>
@@ -99,15 +99,15 @@ NAVEGADOR (Cliente React)
 
 <h2>6. Limitaciones actuales</h2>
 <ol>
-<li><strong>Persistencia Basada en Archivos</strong>: Se usa un archivo <code>jugadores.json</code> para base de datos. Para gran volumen de datos concurrentes, debería migrarse a una base SQL (ej. MySQL/Laravel).</li>
-<li><strong>Seguridad del Backend</strong>: El archivo <code>api.php</code> actual acepta tráfico CORS libre (Access-Control-Allow-Origin: *) para facilitar el demo en desarrollo con Vite. En producción requeriría restricción por dominio.</li>
+<li><strong>Persistencia Local</strong>: Se usa <code>localStorage</code> para simular una base de datos. Esto significa que los datos guardados solo "viven" en el navegador del usuario que hizo el registro. Si se abre la app en otro dispositivo, se mostrará únicamente la data base de <code>jugadores.json</code>, pero no los registros nuevos hechos por el otro usuario.</li>
+<li><strong>Volatilidad de Datos</strong>: Si el usuario borra la caché de su navegador, perderá los registros creados durante sus pruebas.</li>
 </ol>
 <hr>
 
 <h2>7. Mejoras futuras</h2>
 <ol>
-<li><strong>Integración a Google Sheets Nativo</strong>: Si la empresa desea mantener el Google Sheets original, se puede reemplazar el endpoint de <code>api.php</code> por una llamada directa a un Web App de Google Apps Script.</li>
-<li><strong>Autenticación y Panel de Admin</strong>: Crear un dashboard cerrado para que el departamento de Talento Humano apruebe o rechace pedidos sin tocar la base de datos cruda.</li>
+<li><strong>Integración a Backend Real</strong>: Conectar React a una API oficial (Laravel, Node.js) o directamente a Google Apps Script para persistencia global en Google Sheets en lugar de usar Local Storage.</li>
+<li><strong>Autenticación y Panel de Admin</strong>: Crear un dashboard cerrado para que el departamento de Talento Humano apruebe o rechace pedidos.</li>
 </ol>
 <hr>
 

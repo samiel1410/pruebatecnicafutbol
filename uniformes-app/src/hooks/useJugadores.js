@@ -1,25 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
-
-const API_URL = 'http://localhost/PruebaTecnica/api.php';
+import baseJugadores from '../data/jugadores.json';
 
 export function useJugadores() {
   const [jugadores, setJugadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const cargarJugadores = useCallback(async () => {
+  const cargarJugadores = useCallback(() => {
     setLoading(true);
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Error al cargar datos');
-      const data = await response.json();
-      setJugadores(data);
+      const guardados = localStorage.getItem('jugadoresData');
+      if (guardados) {
+        setJugadores(JSON.parse(guardados));
+      } else {
+        setJugadores(baseJugadores);
+        localStorage.setItem('jugadoresData', JSON.stringify(baseJugadores));
+      }
       setError(null);
     } catch (err) {
       console.error(err);
-      setError('No se pudo conectar a la API');
+      setError('Error al cargar datos locales');
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 300);
     }
   }, []);
 
@@ -46,21 +48,23 @@ export function useJugadores() {
   }, [jugadores]);
 
   const guardarJugador = async (nuevoJugador) => {
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoJugador)
-      });
-      if (res.ok) {
-        await cargarJugadores(); // recargar lista
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        try {
+          const nuevo = {
+            codigo: String(Date.now()).substring(7), // Genera un ID corto
+            ...nuevoJugador
+          };
+          const nuevosDatos = [...jugadores, nuevo];
+          setJugadores(nuevosDatos);
+          localStorage.setItem('jugadoresData', JSON.stringify(nuevosDatos));
+          resolve(true);
+        } catch (err) {
+          console.error(err);
+          resolve(false);
+        }
+      }, 400);
+    });
   };
 
   return {
