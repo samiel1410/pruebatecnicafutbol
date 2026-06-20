@@ -123,7 +123,7 @@ export default function FormPage() {
       formDataWa.append('number', numeroEnvio);
       formDataWa.append('message', mensajeTexto);
 
-      fetch('/api-whatsapp', {
+      fetch('/api-whatsapp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formDataWa
